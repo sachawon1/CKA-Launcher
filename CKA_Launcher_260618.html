@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CKA Setup Launcher</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --border: rgba(48,54,61,1);
+    --border-bright: rgba(88,166,255,0.3);
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --text-dim: #484f58;
+    --green: #3fb950;
+    --green-bg: rgba(63,185,80,0.1);
+    --green-border: rgba(63,185,80,0.3);
+    --blue: #58a6ff;
+    --blue-bg: rgba(88,166,255,0.08);
+    --blue-border: rgba(88,166,255,0.25);
+    --yellow: #d29922;
+    --yellow-bg: rgba(210,153,34,0.1);
+    --red: #f85149;
+    --red-bg: rgba(248,81,73,0.1);
+    --red-border: rgba(248,81,73,0.3);
+    --purple: #bc8cff;
+    --purple-bg: rgba(188,140,255,0.08);
+    --teal: #39d353;
+    --orange: #e3b341;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(88,166,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(88,166,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    margin-bottom: 52px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--blue-bg);
+    border: 1px solid var(--blue-border);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--blue);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 20px;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .logo {
+    font-size: 52px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 1;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #e6edf3 0%, #58a6ff 50%, #bc8cff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .logo span {
+    color: var(--blue);
+    -webkit-text-fill-color: var(--blue);
+  }
+
+  .subtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── STATS ROW ── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+
+  .stat-card:hover { border-color: var(--border-bright); }
+
+  .stat-num {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--blue);
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── CONTROL BAR ── */
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .search-wrap {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    font-size: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    pointer-events: none;
+  }
+
+  .search-input {
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px 9px 34px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus { border-color: var(--blue); }
+  .search-input::placeholder { color: var(--text-dim); }
+
+  .filter-btn {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    color: var(--text-muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--blue-bg);
+    border-color: var(--blue-border);
+    color: var(--blue);
+  }
+
+  /* ── MASTER LAUNCH ── */
+  .master-launch {
+    background: linear-gradient(135deg, var(--green-bg), rgba(63,185,80,0.05));
+    border: 1px solid var(--green-border);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .master-info h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .master-info p {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .launch-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 22px;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--green);
+    color: #0d1117;
+  }
+  .btn-primary:hover { background: #4fc76a; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-secondary {
+    background: var(--bg3);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--blue-border); color: var(--blue); }
+
+  .btn-danger {
+    background: var(--red-bg);
+    color: var(--red);
+    border: 1px solid var(--red-border);
+  }
+  .btn-danger:hover { background: rgba(248,81,73,0.18); }
+
+  /* ── QUESTION GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+  }
+
+  .q-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: default;
+  }
+
+  .q-card:hover {
+    border-color: var(--border-bright);
+    transform: translateY(-2px);
+    background: rgba(22,27,34,0.8);
+  }
+
+  .q-card.q14 {
+    border-color: var(--red-border);
+    background: rgba(248,81,73,0.04);
+  }
+
+  .q-card.q14:hover { border-color: var(--red); }
+
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .q-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--blue);
+    background: var(--blue-bg);
+    border: 1px solid var(--blue-border);
+    border-radius: 6px;
+    padding: 3px 8px;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+
+  .q14 .q-num {
+    color: var(--red);
+    background: var(--red-bg);
+    border-color: var(--red-border);
+  }
+
+  .q-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.35;
+    flex: 1;
+  }
+
+  .q-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .q-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid;
+  }
+
+  .tag-ns   { color: #58a6ff; border-color: rgba(88,166,255,0.3); background: rgba(88,166,255,0.08); }
+  .tag-res  { color: #bc8cff; border-color: rgba(188,140,255,0.3); background: rgba(188,140,255,0.08); }
+  .tag-warn { color: #e3b341; border-color: rgba(227,179,65,0.3);  background: rgba(227,179,65,0.08); }
+  .tag-ok   { color: #3fb950; border-color: rgba(63,185,80,0.3);   background: rgba(63,185,80,0.08); }
+  .tag-danger { color: #f85149; border-color: rgba(248,81,73,0.3); background: rgba(248,81,73,0.08); }
+
+  .q-cmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .q-cmd:hover { border-color: var(--blue-border); color: var(--blue); }
+
+  .q-cmd .prompt { color: var(--green); user-select: none; }
+
+  .q-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+  }
+
+  .q-run-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .q-run-btn:hover {
+    background: var(--green-bg);
+    border-color: var(--green-border);
+    color: var(--green);
+  }
+
+  .q14 .q-run-btn:hover {
+    background: var(--red-bg);
+    border-color: var(--red-border);
+    color: var(--red);
+  }
+
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .copy-btn:hover { border-color: var(--blue-border); color: var(--blue); }
+
+  /* ── STATUS BAR ── */
+  .status-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(13,17,23,0.95);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 100;
+    gap: 12px;
+  }
+
+  .status-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .status-dot {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  /* ── MODAL ── */
+  .modal-bg {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-bg.show { display: flex; }
+
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    max-width: 480px;
+    width: 90%;
+    position: relative;
+  }
+
+  .modal h3 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .modal p {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .modal-cmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    color: var(--green);
+    word-break: break-all;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .close-modal {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+
+  .close-modal:hover { background: var(--bg3); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    background: var(--bg2);
+    border: 1px solid var(--green-border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--green);
+    z-index: 300;
+    transform: translateY(-10px);
+    opacity: 0;
+    transition: all 0.2s;
+    pointer-events: none;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 600px) {
+    .stats { grid-template-columns: repeat(2,1fr); }
+    .logo { font-size: 36px; }
+    .master-launch { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="badge">killercoda.com · CKA Playground</div>
+    <div class="logo">CKA <span>Setup</span> Launcher</div>
+    <div class="subtitle">問題1〜16番の実習環境をワンクリックで構築します</div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-num">16</div>
+      <div class="stat-label">総問題数</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">15</div>
+      <div class="stat-label">一括実行対象</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">1</div>
+      <div class="stat-label">危険問題 (Q14)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="copied-count">0</div>
+      <div class="stat-label">コマンドコピー数</div>
+    </div>
+  </div>
+
+  <!-- MASTER LAUNCH -->
+  <div class="master-launch">
+    <div class="master-info">
+      <h3>全環境構築 (Q1〜Q16、Q14を除く)</h3>
+      <p>$ ./CKA_setup_260618.sh all</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="launch-btn btn-secondary" onclick="openKillerCoda()">
+        🌐 KillerCodaを開く
+      </button>
+      <button class="launch-btn btn-primary" onclick="copyAndLaunch('all')">
+        ▶ 全体実行コマンドをコピー
+      </button>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input class="search-input" id="searchInput" type="text" placeholder="問題を検索 (HPA, Ingress, PV ...)">
+    </div>
+    <button class="filter-btn active" data-filter="all" onclick="setFilter(this,'all')">すべて</button>
+    <button class="filter-btn" data-filter="networking" onclick="setFilter(this,'networking')">ネットワーク</button>
+    <button class="filter-btn" data-filter="storage" onclick="setFilter(this,'storage')">ストレージ</button>
+    <button class="filter-btn" data-filter="workload" onclick="setFilter(this,'workload')">ワークロード</button>
+    <button class="filter-btn" data-filter="cluster" onclick="setFilter(this,'cluster')">クラスター</button>
+  </div>
+
+  <div class="section-label">問題別・個別実行</div>
+
+  <!-- QUESTION GRID -->
+  <div class="grid" id="questionGrid"></div>
+
+  <div style="text-align:center;margin-top:48px;padding-bottom:24px;">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);">
+      Made by 李恩赫 (Eunhyuk Lee)
+    </span>
+  </div>
+
+</div>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="status-left">
+    <div class="status-dot">
+      <div class="dot"></div>
+      <span>Ready</span>
+    </div>
+    <span>|</span>
+    <span>スクリプト: CKA_setup_260618.sh</span>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <button class="close-modal" onclick="closeModal()">✕</button>
+    <h3 id="modal-title"></h3>
+    <p id="modal-desc"></p>
+    <div class="modal-cmd" id="modal-cmd"></div>
+    <div class="modal-actions">
+      <button class="launch-btn btn-secondary" onclick="closeModal()">キャンセル</button>
+      <button class="launch-btn btn-primary" id="modal-copy-btn" onclick="copyModalCmd()">コマンドコピー数 ↗</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✓ クリップボードにコピーしました</div>
+
+<script>
+const RAW_URL = 'https://raw.githubusercontent.com/sachawon1/CKA-Launcher/main/CKA_setup_260618.sh';
+
+function buildCmd(target) {
+  const strip = "python3 -c \"d=open('/tmp/cka.sh','rb').read().decode().replace('\\r','');open('/tmp/cka.sh','w').write(d)\"";
+  const base = 'curl -fsSL ' + RAW_URL + ' -o /tmp/cka.sh && ' + strip;
+  return (target !== null && target !== undefined) ? base + ' && bash /tmp/cka.sh ' + target : base;
+}
+
+const QUESTIONS = [
+  {num:1,  title:'Horizontal Pod Autoscaling', desc:'autoscaleネームスペースにweb-apache Deploymentを作成。metrics-serverの存在確認とインストール。HPA(web-apache-hpa / min1・max4 / CPU70% / stabilizationWindow30秒)追加が課題。',  tags:[{t:'ns:autoscale',c:'tag-ns'},{t:'Deployment',c:'tag-res'},{t:'HPA',c:'tag-res'},{t:'metrics-server',c:'tag-ok'}], category:'workload',   flag:null},
+  {num:2,  title:'Ingress & Service',           desc:'webネームスペースにweb-app Deployment + web-svc Serviceを作成。ingress-nginxインストールおよびwebhook削除。Ingressは受験者の課題。', tags:[{t:'ns:web',c:'tag-ns'},{t:'Ingress',c:'tag-res'},{t:'nginx',c:'tag-ok'},{t:'webhook削除',c:'tag-warn'}], category:'networking', flag:null},
+  {num:3,  title:'NodePort Service',            desc:'frontendネームスペースにfrontend-app Deploymentを作成(containerPort未設定)。containerPort(80)追加とNodePort Service(frontend-svc・nodePort30080)作成が課題。', tags:[{t:'ns:frontend',c:'tag-ns'},{t:'NodePort',c:'tag-res'},{t:'containerPort未設定',c:'tag-warn'}], category:'networking', flag:null},
+  {num:4,  title:'StorageClass',                desc:'local-path(KillerCoda組み込みのdefault SC)が存在する状態(スクリプトはSCを新規作成せず存在確認のみ)。local-kiddie SC(provisioner=rancher.io/local-path)をdefaultとして作成し、既存default(local-path)のis-default-classアノテーションを削除するのが課題。', tags:[{t:'StorageClass',c:'tag-res'},{t:'default-class',c:'tag-ok'}], category:'storage',    flag:null},
+  {num:5,  title:'PriorityClass',               desc:'priorityネームスペースにdb-app DeploymentおよびPriorityClassを作成。', tags:[{t:'ns:priority',c:'tag-ns'},{t:'PriorityClass',c:'tag-res'}], category:'workload',   flag:null},
+  {num:6,  title:'Gateway API',                 desc:'Gateway APIリソースのインストールおよび関連環境の構成。', tags:[{t:'Gateway API',c:'tag-res'},{t:'ネットワーキング',c:'tag-ns'}], category:'networking', flag:null},
+  {num:7,  title:'Resource Allocation',         desc:'namuネームスペースにリソースrequests/limitsを設定したPodを作成。', tags:[{t:'ns:namu',c:'tag-ns'},{t:'requests/limits',c:'tag-res'}], category:'workload',   flag:null},
+  {num:8,  title:'PV再利用',                    desc:'PVをclaimRef除去でAvailable状態にした環境を構成。削除されたPVC・Deploymentを既存PVに再バインドして復元するのが課題。', tags:[{t:'PersistentVolume',c:'tag-res'},{t:'Released → Available',c:'tag-warn'}], category:'storage',    flag:null},
+  {num:9,  title:'cri-dockerdインストール',      desc:'Docker APIバージョンを自動検出し互換性のあるcri-dockerdをダウンロード。API 1.44以上は0.3.16、それ以下は0.3.15を使用。', tags:[{t:'cri-dockerd',c:'tag-res'},{t:'CRI',c:'tag-ok'},{t:'Docker API自動判定',c:'tag-warn'}], category:'cluster',    flag:null},
+  {num:10, title:'CNIプラグイン',               desc:'CNIプラグイン(Calico/Flannel等)のインストール環境を構成。', tags:[{t:'CNI',c:'tag-res'},{t:'ネットワークプラグイン',c:'tag-ns'}], category:'cluster',    flag:null},
+  {num:11, title:'Sidecarパターン',             desc:'loggingnsネームスペースにlogging-app Deploymentを作成(sidecarなし)。sidecarコンテナ(busybox:stable)追加と共有ボリューム(emptyDir)設定が課題。', tags:[{t:'ns:loggingns',c:'tag-ns'},{t:'Sidecar',c:'tag-res'}], category:'workload',   flag:null},
+  {num:12, title:'Helm & ArgoCD',               desc:'HelmリポジトリとArgoCDのインストール環境を構成。', tags:[{t:'Helm',c:'tag-res'},{t:'ArgoCD',c:'tag-ok'}], category:'cluster',    flag:null},
+  {num:13, title:'Network Policy',              desc:'~/netpol/ディレクトリに3つのNetworkPolicy YAMLを作成。最もrestrictiveなものを選択するのが課題。', tags:[{t:'NetworkPolicy',c:'tag-res'},{t:'netpol/',c:'tag-ns'}], category:'networking', flag:null},
+  {num:14, title:'⚠ Cluster Troubleshooting',  desc:'kube-apiserver.yamlのetcd-servers IPを誤った値に変更しAPI Server障害を発生させる。クラスターが破壊されます！', tags:[{t:'危険',c:'tag-danger'},{t:'APIサーバー障害',c:'tag-danger'},{t:'all除外',c:'tag-warn'}], category:'cluster',    flag:'danger'},
+  {num:15, title:'CRD抽出 (cert-manager)',      desc:'cert-manager CRDをインストール。certificates.cert-manager.io等のCRD一覧抽出が課題。', tags:[{t:'CRD',c:'tag-res'},{t:'cert-manager',c:'tag-ok'}], category:'cluster',    flag:null},
+  {num:16, title:'ConfigMap修正 (TLS 1.2)',     desc:'nginx-nsネームスペースにTLSv1.3のみ許可するConfigMap + Deploymentを作成。TLSv1.2追加が課題。', tags:[{t:'ns:nginx-ns',c:'tag-ns'},{t:'ConfigMap',c:'tag-res'},{t:'TLS',c:'tag-ok'}], category:'workload',   flag:null}
+];
+
+let currentFilter = 'all';
+let copiedCount = 0;
+let currentModalCmd = '';
+
+function renderCards(filter, search) {
+  filter = filter || 'all';
+  search = search || '';
+  const grid = document.getElementById('questionGrid');
+  grid.innerHTML = '';
+  const filtered = QUESTIONS.filter(function(q) {
+    const matchFilter = filter === 'all' || q.category === filter;
+    const s = search.toLowerCase();
+    const matchSearch = !s ||
+      q.title.toLowerCase().includes(s) ||
+      q.desc.toLowerCase().includes(s) ||
+      q.tags.some(function(t){ return t.t.toLowerCase().includes(s); }) ||
+      String(q.num).includes(s);
+    return matchFilter && matchSearch;
+  });
+
+  filtered.forEach(function(q) {
+    const isDanger = q.flag === 'danger';
+    const card = document.createElement('div');
+    card.className = 'q-card' + (isDanger ? ' q14' : '');
+
+    const header = document.createElement('div');
+    header.className = 'q-header';
+    header.innerHTML = '<div class="q-num">Q' + String(q.num).padStart(2,'0') + '</div>' +
+                       '<div class="q-title">' + q.title + '</div>';
+
+    const desc = document.createElement('div');
+    desc.className = 'q-desc';
+    desc.textContent = q.desc;
+
+    const tags = document.createElement('div');
+    tags.className = 'q-tags';
+    q.tags.forEach(function(t) {
+      const span = document.createElement('span');
+      span.className = 'tag ' + t.c;
+      span.textContent = t.t;
+      tags.appendChild(span);
+    });
+
+    const cmdBox = document.createElement('div');
+    cmdBox.className = 'q-cmd';
+    cmdBox.title = 'クリックしてコピー';
+    cmdBox.innerHTML = '<span class="prompt">$</span><span>./CKA_setup_260618.sh ' + q.num + '</span>';
+    cmdBox.addEventListener('click', function(e) {
+      e.stopPropagation();
+      copyToClipboard(buildCmd(q.num), '✓ コピーしました！');
+    });
+
+    const actions = document.createElement('div');
+    actions.className = 'q-actions';
+    const runBtn = document.createElement('button');
+    runBtn.className = 'q-run-btn';
+    runBtn.innerHTML = isDanger ? '⚠ 危険 - 個別実行' : '▶ 実行準備';
+    runBtn.addEventListener('click', function() { openModal(q.num); });
+    actions.appendChild(runBtn);
+
+    card.appendChild(header);
+    card.appendChild(desc);
+    card.appendChild(tags);
+    card.appendChild(cmdBox);
+    card.appendChild(actions);
+    grid.appendChild(card);
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text-dim);font-family:monospace;font-size:13px;">検索結果なし</div>';
+  }
+}
+
+function setFilter(btn, filter) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderCards(currentFilter, document.getElementById('searchInput').value);
+}
+
+document.getElementById('searchInput').addEventListener('input', function(e) {
+  renderCards(currentFilter, e.target.value);
+});
+
+function copyToClipboard(text, successMsg) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      showToast(successMsg);
+      copiedCount++;
+      document.getElementById('copied-count').textContent = copiedCount;
+    }).catch(function(){ fallbackCopy(text, successMsg); });
+  } else {
+    fallbackCopy(text, successMsg);
+  }
+}
+
+function fallbackCopy(text, successMsg) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:-999px;left:-999px;opacity:0;';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    if (document.execCommand('copy')) {
+      showToast(successMsg);
+      copiedCount++;
+      document.getElementById('copied-count').textContent = copiedCount;
+    } else {
+      showToast('❌ コピー失敗 — 直接選択してCtrl+C');
+    }
+  } catch(e) {
+    showToast('❌ コピー失敗 — 直接選択してCtrl+C');
+  }
+  document.body.removeChild(ta);
+}
+
+function copyAndLaunch(target) {
+  copyToClipboard(buildCmd(target), '✓ 全体実行コマンドのコピー完了！');
+}
+
+function copyUploadCmd() {
+  copyToClipboard(buildCmd(null), '✓ ダウンロードコマンドをコピーしました！');
+}
+
+function openKillerCoda() {
+  window.open('https://killercoda.com/playgrounds/scenario/cka', '_blank');
+}
+
+function openModal(num) {
+  const q = QUESTIONS.find(function(x){ return x.num === num; });
+  if (!q) return;
+  const isDanger = q.flag === 'danger';
+  const cmd = buildCmd(q.num);
+  currentModalCmd = cmd;
+
+  document.getElementById('modal-title').innerHTML =
+    (isDanger ? '<span style="color:var(--red)">⚠</span> ' : '▶ ') + 'Q' + q.num + '. ' + q.title;
+  document.getElementById('modal-desc').textContent = isDanger
+    ? '⚠ この問題はクラスターを破壊します！単独で実行し復旧方法を確認してから進めてください。'
+    : 'KillerCoda CKAターミナルに下記コマンドを貼り付けてQ' + q.num + 'の環境を構築します。';
+  document.getElementById('modal-cmd').textContent = cmd;
+
+  const btn = document.getElementById('modal-copy-btn');
+  if (isDanger) {
+    btn.className = 'launch-btn btn-danger';
+    btn.textContent = '⚠ 危険 - それでもコピー';
+  } else {
+    btn.className = 'launch-btn btn-primary';
+    btn.textContent = 'コマンドをコピー ↗';
+  }
+  document.getElementById('modal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+}
+
+function copyModalCmd() {
+  copyToClipboard(currentModalCmd, '✓ コピーしました！KillerCodaターミナルに貼り付けてください。');
+  closeModal();
+}
+
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === document.getElementById('modal')) closeModal();
+});
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
+
+renderCards();
+</script>
+</body>
+</html>

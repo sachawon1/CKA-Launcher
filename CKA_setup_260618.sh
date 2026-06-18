@@ -133,7 +133,7 @@ spec:
   selector:
     app: web-app
   ports:
-  - port: 8080
+  - port: 80
     targetPort: 80
     protocol: TCP
 EOF
